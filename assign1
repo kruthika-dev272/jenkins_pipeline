@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build from')
+        string(name: 'BUILD_VERSION', defaultValue: '1.0.0', description: 'Build version')
+    }
+
+    stages {
+        stage('Setup') {
+            steps {
+                echo "Branch Name: ${params.BRANCH_NAME}"
+                echo "Build Version: ${params.BUILD_VERSION}"
+            }
+        }
+
+        stage('Checkout Code') {
+            steps {
+                script {
+                    echo "Checking out branch ${params.BRANCH_NAME}"
+                    git branch: "${params.BRANCH_NAME}", url: 'https://your-git-repo-url.git'
+                }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    echo "Starting build for version ${params.BUILD_VERSION}"
+                    // Add custom build commands here
+                    sh 'echo "Building version ${BUILD_VERSION}" > build_info.txt'
+                }
+            }
+        }
+
+        stage('Archive Build') {
+            steps {
+                archiveArtifacts artifacts: 'build_info.txt', fingerprint: true
+                echo "Build artifacts archived."
+            }
+        }
+    }
+}
+
